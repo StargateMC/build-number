@@ -62,8 +62,8 @@ function request(method, path, data, callback) {
 
 function main() {
 
-    const prefix = env.INPUT_PREFIX ? `${env.INPUT_PREFIX}-` : '';
     const path = 'BUILD_NUMBER/BUILD_NUMBER';
+    const prefix = env.INPUT_PREFIX ? `${env.INPUT_PREFIX}-` : '';
 
     //See if we've already generated the build number and are in later steps...
     if (fs.existsSync(path)) {
@@ -71,7 +71,7 @@ function main() {
         console.log(`Build number already generated in earlier jobs, using build number ${buildNumber}...`);
         //Setting the output and a environment variable to new build number...
         console.log(`::set-env name=${prefix}BUILD_NUMBER::${buildNumber}`);
-        console.log(`::set-output name=build_number::${buildNumber}`);
+        console.log(`::set-output name=${prefix}build_number::${buildNumber}`);
         return;
     }
     
@@ -109,7 +109,7 @@ function main() {
             nextBuildNumber = currentBuildNumber + 1;
             console.log(`Updating build counter to ${nextBuildNumber}...`);
         } else {
-            if (err) {
+            if (err) {
                 fail(`Failed to get refs. Error: ${err}, status: ${status}`);
             } else {
                 fail(`Getting build-number refs failed with http status ${status}, error: ${JSON.stringify(result)}`);
@@ -130,7 +130,7 @@ function main() {
             
             //Setting the output and a environment variable to new build number...
             console.log(`::set-env name=${prefix}BUILD_NUMBER::${nextBuildNumber}`);
-            console.log(`::set-output name=build_number::${nextBuildNumber}`);
+            console.log(`::set-output name=${prefix}build_number::${nextBuildNumber}`);
             //Save to file so it can be used for next jobs...
             fs.writeFileSync('BUILD_NUMBER', nextBuildNumber.toString());
             
@@ -138,7 +138,7 @@ function main() {
             if (nrTags) {
                 console.log(`Deleting ${nrTags.length} older build counters...`);
             
-                for (let nrTag of nrTags) {
+                for (let nrTag of nrTags) {
                     request('DELETE', `/repos/${env.GITHUB_REPOSITORY}/git/${nrTag.ref}`, null, (err, status, result) => {
                         if (status !== 204 || err) {
                             console.warn(`Failed to delete ref ${nrTag.ref}, status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
