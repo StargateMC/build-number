@@ -67,6 +67,14 @@ function main() {
     var bleeding_number = env.bleeding_BUILD_NUMBER;
     var test_number = env.test_BUILD_NUMBER;
     var live_number = env.live_BUILD_NUMBER;    
+	var RESET_VERSION = env.RESET_VERSION;
+	var PRESERVE_VERSION = env.PRESERVE_VERSION;
+	if (PRESERVE_VERSION != 'YES' && PRESERVE_VERSION != 'NO') {
+		fail(`The ENV:PRESERVE_VERSION variable should be YES or NO`);
+	}
+	if (RESET_VERSION != 'YES' && RESET_VERSION != 'NO') {
+		fail(`The ENV:RESET_VERSION variable should be YES or NO`);
+	}
     console.log(`Build numbers: ${bleeding_number} , ${test_number}, ${live_number}`);
     //See if we've already generated the build number and are in later steps...
     if (fs.existsSync(path)) {
@@ -90,15 +98,15 @@ function main() {
         let nextBuildNumber, nrTags;
     
         if (status === 404) {
-            console.log('No build-number ref available, starting at 1.');
-            nextBuildNumber = 1;
+            console.log('No build-number ref available, starting at 0.');
+            nextBuildNumber = 0;
             nrTags = [];
         } else if (status === 200) {
             const regexString = `/${prefix}build-number-(\\d+)$`;
             const regex = new RegExp(regexString);
             nrTags = result.filter(d => d.ref.match(regex));
             
-            const MAX_OLD_NUMBERS = 5; //One or two ref deletes might fail, but if we have lots then there's something wrong!
+            const MAX_OLD_NUMBERS = 10; //One or two ref deletes might fail, but if we have lots then there's something wrong!
             if (nrTags.length > MAX_OLD_NUMBERS) {
                 fail(`ERROR: Too many ${prefix}build-number- refs in repository, found ${nrTags.length}, expected only 1. Check your tags!`);
             }
@@ -108,9 +116,18 @@ function main() {
     
             let currentBuildNumber = Math.max(...nrs);
             console.log(`Last build nr was ${currentBuildNumber}.`);
-    
-            nextBuildNumber = currentBuildNumber + 1;
-            console.log(`Updating build counter to ${nextBuildNumber}...`);
+			if (RESET_VERSION == 'YES') {
+					nextBuildNumber = 0;
+					console.log(`Resetting build counter to ${nextBuildNumber}...`);
+			} else {
+				if (PRESERVE_VERSION == 'YES') {
+					nextBuildNumber = currentBuildNumber;
+					console.log(`Retaining build counter as ${nextBuildNumber}...`);
+				} else {
+					nextBuildNumber = currentBuildNumber + 1;
+					console.log(`Updating build counter to ${nextBuildNumber}...`);
+				}
+			}
         } else {
             if (err) {
                 fail(`Failed to get refs. Error: ${err}, status: ${status}`);
@@ -124,10 +141,12 @@ function main() {
             sha: env.GITHUB_SHA
         };
     
+	    if (PRESERVE_VERSION != 'YES') {
         request('POST', `/repos/${env.GITHUB_REPOSITORY}/git/refs`, newRefData, (err, status, result) => {
             if (status !== 201 || err) {
                 fail(`Failed to create new build-number ref. Status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
             }
+		}
 
             console.log(`Successfully updated build number to ${nextBuildNumber}`);
             
@@ -137,20 +156,23 @@ function main() {
             //Save to file so it can be used for next jobs...
             fs.writeFileSync('BUILD_NUMBER', nextBuildNumber.toString());
             
-            //Cleanup
-            if (nrTags) {
-                console.log(`Deleting ${nrTags.length} older build counters...`);
             
-                for (let nrTag of nrTags) {
-                    request('DELETE', `/repos/${env.GITHUB_REPOSITORY}/git/${nrTag.ref}`, null, (err, status, result) => {
-                        if (status !== 204 || err) {
-                            console.warn(`Failed to delete ref ${nrTag.ref}, status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
-                        } else {
-                            console.log(`Deleted ${nrTag.ref}`);
-                        }
-                    });
-                }
-            }
+			if (PRESERVE_VERSION != 'YES') {
+				//Cleanup
+				if (nrTags) {
+					console.log(`Deleting ${nrTags.length} older build counters...`);
+				
+					for (let nrTag of nrTags) {
+						request('DELETE', `/repos/${env.GITHUB_REPOSITORY}/git/${nrTag.ref}`, null, (err, status, result) => {
+							if (status !== 204 || err) {
+								console.warn(`Failed to delete ref ${nrTag.ref}, status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
+							} else {
+								console.log(`Deleted ${nrTag.ref}`);
+							}
+						});
+					}
+				}
+			}
 
         });
     });
