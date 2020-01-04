@@ -150,7 +150,6 @@ function main() {
             sha: env.GITHUB_SHA
         };
     
-	    if (PRESERVE_VERSION != 'YES') {
         request('POST', `/repos/${env.GITHUB_REPOSITORY}/git/refs`, newRefData, (err, status, result) => {
             if (status !== 201 || err) {
                 fail(`Failed to create new build-number ref. Status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
@@ -183,7 +182,6 @@ function main() {
 			}
 
         });
-		}
     });
 }
 
