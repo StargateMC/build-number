@@ -67,7 +67,7 @@ function main() {
     var bleeding_number = env.bleeding_BUILD_NUMBER;
     var test_number = env.test_BUILD_NUMBER;
     var live_number = env.live_BUILD_NUMBER;    
-    console.log(`Build numbers: $bleeding_number , $test_number}, $live_number`);
+    console.log(`Build numbers: ${bleeding_number} , ${test_number}, ${live_number}`);
     //See if we've already generated the build number and are in later steps...
     if (fs.existsSync(path)) {
         let buildNumber = fs.readFileSync(path);
