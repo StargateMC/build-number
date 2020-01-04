@@ -151,11 +151,11 @@ function main() {
         };
     
 		if (PRESERVE_VERSION == 'NO') {
-			request('DELETE', `/repos/${env.GITHUB_REPOSITORY}/git/${newRefData.ref}`, null, (err, status, result) => {
+			request('DELETE', `/repos/${env.GITHUB_REPOSITORY}/git/${newRefData}`, null, (err, status, result) => {
 				if (status !== 204 || err) {
-					console.log(`Failed to delete ref ${newRefData.ref}, status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
+					console.log(`Failed to delete ref ${newRefData}, status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
 				} else {
-					console.log(`Deleted ${newRefData.ref}`);
+					console.log(`Deleted ${newRefData}`);
 				}
 			});
 			request('POST', `/repos/${env.GITHUB_REPOSITORY}/git/refs`, newRefData, (err, status, result) => {
