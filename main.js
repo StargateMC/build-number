@@ -69,6 +69,15 @@ function main() {
     var live_number = env.live_BUILD_NUMBER;    
 	var RESET_VERSION = env.RESET_VERSION;
 	var PRESERVE_VERSION = env.PRESERVE_VERSION;
+	if (live_number == null) {
+		live_number = 0;
+	}
+	if (test_number == null) {
+		test_number = 0;
+	}
+	if (bleeding_number == null) {
+		bleeding_number = 0;
+	}
 	if (PRESERVE_VERSION != 'YES' && PRESERVE_VERSION != 'NO') {
 		fail(`The ENV:PRESERVE_VERSION variable should be YES or NO`);
 	}
