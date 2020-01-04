@@ -151,6 +151,13 @@ function main() {
         };
     
 		if (PRESERVE_VERSION == 'NO') {
+			request('DELETE', `/repos/${env.GITHUB_REPOSITORY}/git/${newRefData.ref}`, null, (err, status, result) => {
+				if (status !== 204 || err) {
+					console.log(`Failed to delete ref ${newRefData.ref}, status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
+				} else {
+					console.log(`Deleted ${nrTag.ref}`);
+				}
+			});
 			request('POST', `/repos/${env.GITHUB_REPOSITORY}/git/refs`, newRefData, (err, status, result) => {
 				if (status !== 201 || err) {
 					fail(`Failed to create new build-number ref. Status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
