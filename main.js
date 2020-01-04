@@ -155,7 +155,7 @@ function main() {
 				if (status !== 204 || err) {
 					console.log(`Failed to delete ref ${newRefData.ref}, status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
 				} else {
-					console.log(`Deleted ${nrTag.ref}`);
+					console.log(`Deleted ${newRefData.ref}`);
 				}
 			});
 			request('POST', `/repos/${env.GITHUB_REPOSITORY}/git/refs`, newRefData, (err, status, result) => {
