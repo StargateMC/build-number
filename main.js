@@ -64,9 +64,9 @@ function main() {
 
     const path = 'BUILD_NUMBER/BUILD_NUMBER';
     const prefix = env.INPUT_PREFIX ? `${env.INPUT_PREFIX}-` : '';
-    var bleeding_number = env.bleeding-BUILD_NUMBER;
-    var test_number = env.test-BUILD_NUMBER;
-    var live_number = env.live-BUILD_NUMBER;    
+    var bleeding_number = env.'bleeding-BUILD_NUMBER';
+    var test_number = env.'test-BUILD_NUMBER';
+    var live_number = env.'live-BUILD_NUMBER';    
     console.log(`Build numbers: ${bleeding_number} , ${test_number}, ${live_number}`);
     //See if we've already generated the build number and are in later steps...
     if (fs.existsSync(path)) {
