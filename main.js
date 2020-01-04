@@ -69,7 +69,6 @@ function main() {
     var live_number = env.live_BUILD_NUMBER;    
 	var RESET_VERSION = env.RESET_VERSION;
 	var PRESERVE_VERSION = env.PRESERVE_VERSION;
-	
 	if (PRESERVE_VERSION != 'YES' && PRESERVE_VERSION != 'NO') {
 		fail(`The ENV:PRESERVE_VERSION variable should be YES or NO`);
 	}
@@ -143,12 +142,11 @@ function main() {
         };
     
 	    if (PRESERVE_VERSION != 'YES') {
-			request('POST', `/repos/${env.GITHUB_REPOSITORY}/git/refs`, newRefData, (err, status, result) => {
-				if (status !== 201 || err) {
-					fail(`Failed to create new build-number ref. Status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
-				}
-			});
-		}
+        request('POST', `/repos/${env.GITHUB_REPOSITORY}/git/refs`, newRefData, (err, status, result) => {
+            if (status !== 201 || err) {
+                fail(`Failed to create new build-number ref. Status: ${status}, err: ${err}, result: ${JSON.stringify(result)}`);
+            }
+
             console.log(`Successfully updated build number to ${nextBuildNumber}`);
             
             //Setting the output and a environment variable to new build number...
@@ -176,10 +174,10 @@ function main() {
 			}
 
         });
+		}
     });
 }
 
 main();
-
 
 
