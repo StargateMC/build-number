@@ -63,11 +63,11 @@ function request(method, path, data, callback) {
 function main() {
 
     const path = 'BUILD_NUMBER/BUILD_NUMBER';
-    const prefix = env.INPUT_PREFIX ? `${env.INPUT_PREFIX}-` : '';
-    var bleeding_number = env.'bleeding-BUILD_NUMBER';
-    var test_number = env.'test-BUILD_NUMBER';
-    var live_number = env.'live-BUILD_NUMBER';    
-    console.log(`Build numbers: ${bleeding_number} , ${test_number}, ${live_number}`);
+    const prefix = env.INPUT_PREFIX ? `${env.INPUT_PREFIX}_` : '';
+    var bleeding_number = env.bleeding_BUILD_NUMBER;
+    var test_number = env.test_BUILD_NUMBER;
+    var live_number = env.live_BUILD_NUMBER;    
+    console.log(`Build numbers: $bleeding_number , $test_number}, $live_number`);
     //See if we've already generated the build number and are in later steps...
     if (fs.existsSync(path)) {
         let buildNumber = fs.readFileSync(path);
